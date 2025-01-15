@@ -16,8 +16,16 @@ struct LocationDetailView: View {
     @State private var name = ""
     @State private var address = ""
     @Binding var showRoute: Bool
-    @Binding var travelInterval: TimeInterval
+    @Binding var travelInterval: TimeInterval?
     @Binding var transportType: MKDirectionsTransportType
+    var travelTime: String? {
+        guard let travelInterval else { return nil }
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .abbreviated
+        formatter.allowedUnits = [.hour, .minute]
+        return formatter.string(from: travelInterval)
+    }
+    
     
     @State private var lookaroundScene: MKLookAroundScene?
     
@@ -53,6 +61,30 @@ struct LocationDetailView: View {
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.trailing)
+                    }
+                    if destination == nil {
+                        HStack {
+                            Button {
+                                transportType = .automobile
+                            } label: {
+                                Image(systemName: "car")
+                                    .symbolVariant(transportType == .automobile ? .circle : .none)
+                                    .imageScale(.large)
+                            }
+                            Button {
+                                transportType = .walking
+                            } label: {
+                                Image(systemName: "figure.walk")
+                                    .symbolVariant(transportType == .walking ? .circle : .none)
+                                    .imageScale(.large)
+                            }
+                            if let travelTime {
+                                let prefix = transportType == .automobile ? "Driving" : "Walking"
+                                Text("\(prefix) time: \(travelTime)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
                 .textFieldStyle(.roundedBorder)

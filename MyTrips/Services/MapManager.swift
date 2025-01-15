@@ -45,6 +45,18 @@ enum MapManager {
         let searchPredicate = #Predicate<MTPlacemark> { $0.destination == nil }
         try? modelContext.delete(model: MTPlacemark.self, where: searchPredicate)
     }
+    
+    static func distance(meters: Double) -> String {
+        let userLocale = Locale.current
+        let formatter = MeasurementFormatter()
+        var option: MeasurementFormatter.UnitOptions = []
+        option.insert(.providedUnit)
+        option.insert(.naturalScale)
+        formatter.unitOptions = option
+        let meterValue = Measurement(value: meters, unit: UnitLength.meters)
+        let yardsValue = Measurement(value: meters, unit: UnitLength.yards)
+        return formatter.string(from: userLocale.measurementSystem == .metric ? meterValue : yardsValue)
+    }
 }
 
 
@@ -53,3 +65,5 @@ func fetchLoookaroundPreview(selectedPlacemark: MTPlacemark) async -> MKLookArou
     let lookaroundScene = try? await lookaroundRequest.scene
     return lookaroundScene
 }
+
+
